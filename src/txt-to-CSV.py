@@ -23,7 +23,7 @@ for line in range(len(lines)):
     lines[line] = lines[line].replace(",", ".")
     lines[line] = lines[line].replace("got server runtimes", "")
     lines[line] = lines[line].replace("*", "")
-    lines[line] = lines[line].replace("  ", "")
+    lines[line] = lines[line].replace("  ", " ")
 
     if line == 1:
         lines[line] = lines[line].lstrip()

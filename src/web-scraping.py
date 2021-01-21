@@ -1,26 +1,52 @@
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from bs4 import BeautifulSoup
+import pandas as pd
 
-
-import time
 
 PATH = "C:/Program Files (x86)/msedgedriver.exe"
 driver = webdriver.Edge(PATH)
 
-driver.get("")
+driver.get("https://globoesporte.globo.com/futebol/brasileirao-serie-a/")
 
 try:
-    search = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.NAME, "identifier"))
+    element = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located(
+            (By.XPATH, "//*[@id='classificacao__wrapper']/article"))
     )
-    search.send_keys("")
-    search.send_keys(Keys.RETURN)
-    time.sleep(5)
-except SystemExit:
-    driver.quit()
-    raise
+    element = driver.find_element_by_xpath(
+        "//*[@id='classificacao__wrapper']/article/section[1]/div/table[2]")
+
+    html_content_points = element.get_attribute('outerHTML')
+    soup = BeautifulSoup(html_content_points, 'html.parser')
+    table_points = soup.find(name='table')
+
+    df_fullp = pd.read_html(str(table_points))[0].head(10)
+    dfp = df_fullp[['P', 'J', 'V', 'E', 'D']]
+    dfp.columns = ['partidas', 'jogos', 'vitorias', 'empates', 'derrotas']
+
+    element = driver.find_element_by_xpath(
+        "//*[@id='classificacao__wrapper']/article/section[1]/div/table[1]")
+    html_content_teams = element.get_attribute('outerHTML')
+    soup = BeautifulSoup(html_content_teams, 'html.parser')
+    table_teams = soup.find(name='table')
+
+    df_fullt = pd.read_html(str(table_teams))[0].head(10)
+    dft = df_fullt[['Classificação', 'Classificação.1']]
+    dft.columns = ['Posição', 'Times']
+    cla_csv = dft.to_csv()
+
+    print(cla_csv)
+    f = open("C:/Users/xandy/Documents/txtFiles/tabelabr.txt", "a")
+    f.writelines(cla_csv)
+    f.close()
+    df = pd.read_csv(
+        "C:/Users/xandy/Documents/txtFiles/tabelabr.txt", sep=",", header=None, encoding='ISO-8859-1')
+    df.to_excel("C:/Users/xandy/Documents/txtFiles/newF.xlsx", "sheet1")
+
+except Exception as erro:
+    print(erro)
 
 driver.quit()
