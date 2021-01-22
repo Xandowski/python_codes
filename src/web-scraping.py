@@ -16,10 +16,10 @@ try:
         EC.presence_of_element_located(
             (By.XPATH, "//*[@id='classificacao__wrapper']/article"))
     )
-    element = driver.find_element_by_xpath(
+    element_table_points = driver.find_element_by_xpath(
         "//*[@id='classificacao__wrapper']/article/section[1]/div/table[2]")
 
-    html_content_points = element.get_attribute('outerHTML')
+    html_content_points = element_table_points.get_attribute('outerHTML')
     soup = BeautifulSoup(html_content_points, 'html.parser')
     table_points = soup.find(name='table')
 
@@ -27,15 +27,18 @@ try:
     dfp = df_fullp[['P', 'J', 'V', 'E', 'D']]
     dfp.columns = ['partidas', 'jogos', 'vitorias', 'empates', 'derrotas']
 
-    element = driver.find_element_by_xpath(
+    element_table_teams = driver.find_element_by_xpath(
         "//*[@id='classificacao__wrapper']/article/section[1]/div/table[1]")
-    html_content_teams = element.get_attribute('outerHTML')
+    html_content_teams = element_table_teams.get_attribute('outerHTML')
     soup = BeautifulSoup(html_content_teams, 'html.parser')
     table_teams = soup.find(name='table')
 
     df_fullt = pd.read_html(str(table_teams))[0].head(10)
     dft = df_fullt[['Classificação', 'Classificação.1']]
     dft.columns = ['Posição', 'Times']
+    dft['Times'] = dft['Times'].str[:-3]
+    result = pd.concat([dft, dfp], axis=1)
+    print(result)
     cla_csv = dft.to_csv()
 
     print(cla_csv)
