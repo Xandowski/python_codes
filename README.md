@@ -1,1 +1,1 @@
-# Automating Tasks
+## Repository for scripts, tutorials and exercises
