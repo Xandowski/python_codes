@@ -1,10 +1,19 @@
 file = 'notes.txt'
 
 
+class Error(Exception):
+    pass
+
+
+class InputError(Error):
+    def __init__(self, message):
+        self.message = message
+
+
 def write_files(file):
     student_notes = get_students_notes()
 
-    with open('notes.txt', 'a') as file:
+    with open(file, 'a') as file:
         for student in student_notes:
             file.write(f'{student}: ')
             for x in range(0, 4):
@@ -15,12 +24,12 @@ def write_files(file):
 
 def get_students_notes():
     students_notes = {}
-    note = 0
+    note = ''
 
     try:
         number_students = int(input('Digite a quantidade de alunos(as): '))
     except ValueError:
-        print('Digite somente numeros!')
+        print('Digite apenas numeros!')
 
     for x in range(1, number_students+1):
         name = input(f'Digite nome do {x}º aluno(a): ')
@@ -28,9 +37,17 @@ def get_students_notes():
 
         for x in range(1, 5):
             try:
-                note = int(input(f'Digite a {x}ª nota de {name}: '))
+                note = float(input(f'Digite a {x}ª nota de {name}: '))
+
+                if note > 10:
+                    raise InputError('Nota não pode ser maior que 10.')
+                elif note < 0:
+                    raise InputError('Nota não pode ser menor que 0.')
+
             except ValueError:
-                print('Digite somente numeros!')
+                print('Digite apenas numeros!')
+            except InputError as ex:
+                print(ex)
 
             notes.append(note)
 
